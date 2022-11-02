@@ -1,14 +1,54 @@
-## Micronaut 3.7.3 Documentation
+## Micronaut deserialization of classes implementing a common interface fails
 
-- [User Guide](https://docs.micronaut.io/3.7.3/guide/index.html)
-- [API Reference](https://docs.micronaut.io/3.7.3/api/index.html)
-- [Configuration Reference](https://docs.micronaut.io/3.7.3/guide/configurationreference.html)
-- [Micronaut Guides](https://guides.micronaut.io/index.html)
----
+We noticed some very unexpected behaviour when switching from jackson to serde-jackson, resulting in a runtime exception thrown by the serde object mapper.
 
-- [Shadow Gradle Plugin](https://plugins.gradle.org/plugin/com.github.johnrengelman.shadow)
-## Feature serialization-jackson documentation
+We are receiving command objects from RabbitMQ that have a common interface and are discerned by a type parameter. The patterns is:
 
-- [Micronaut Serialization Jackson Core documentation](https://micronaut-projects.github.io/micronaut-serialization/latest/guide/)
+```java
+@Serdeable
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME, property = "type"
+)
+interface Command {
+    @JsonTypeName("one")
+    class CommandOne implements Command {
+    ... more properties here
+    }
+
+    @JsonTypeName("one")
+    class CommandTwo implements Command {        
+    ... more properties here
+    }
+}
+
+@RabbitListener
+class CommandListener {
+    @Queue("command.queue")
+    public void receive(Command command) {
+    }
+}
+```
+
+to deserialize JSON objects of the form
+
+```json
+{
+
+    "type": "one",
+    ... more properties here
+}
+```
+
+```json
+{
+
+    "type": "two",
+    ... more properties here
+}
+```
+
+We have installed a Serde deser for micronaut.rabbitmq which is working.
+
+Now to the fun part: when the interface has an abstract method that is implemented by the classes, everything works fine. When the interface has a default method that is overriden by the classes, deserialization fails. If the interface has no method at all, deserialization fails. If we use records instead of classes, the deserialization fails.
 
 
