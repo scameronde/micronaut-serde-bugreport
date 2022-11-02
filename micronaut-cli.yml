@@ -1,0 +1,6 @@
+applicationType: cli
+defaultPackage: bugreport.serde
+testFramework: junit
+sourceLanguage: java
+buildTool: gradle_kotlin
+features: [annotation-api, app-name, gradle, java, junit, logback, micronaut-build, picocli, picocli-java-application, picocli-junit, readme, serialization-jackson, shade, yaml]
