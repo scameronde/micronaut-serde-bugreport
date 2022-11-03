@@ -49,4 +49,20 @@ public class SerdeInterfacesCommandTest {
         printSerialized,
         RecordCommandBrokenToo.class);
   }
+
+  @Test
+  public void testAbstractClassCommandWorking(ObjectMapper objectMapper) throws IOException {
+    String printSerialized = objectMapper.writeValueAsString(new AbstractClassCommandWorking.PrintCommand("foo"));
+    Object obj = objectMapper.readValue(
+        printSerialized,
+        AbstractClassCommandWorking.class);
+  }
+
+  @Test
+  public void testAbstractClassCommandWorkingToo(ObjectMapper objectMapper) throws IOException {
+    String printSerialized = objectMapper.writeValueAsString(new AbstractClassCommandWorkingToo.PrintCommand("foo"));
+    Object obj = objectMapper.readValue(
+        printSerialized,
+        AbstractClassCommandWorkingToo.class);
+  }
 }
